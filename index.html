@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anna Jay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* Modeled on jakubreis.com (the simple version): warm cream canvas, near-black text,
+     big thin headline with ~ connectors, then a plain text list of projects with hairline
+     dividers (name left / category right). Images appear only in the detail view. */
+  :root{
+    --bg:#f6f5ee;
+    --fg:#15140f;
+    --muted:#8a877c;
+    --hairline:rgba(0,0,0,.18);
+    --font:"Inter",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    --ls:.08em;
+    --ease:cubic-bezier(.16,1,.3,1);
+    --hover:.25s ease;
+    --pad:clamp(24px,6vw,90px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--fg);font-family:var(--font);font-weight:400;
+    -webkit-font-smoothing:antialiased;line-height:1.4;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 var(--pad)}
+
+  /* ---------- hero ---------- */
+  .hero{padding:16vh 0 9vh}
+  .hero h1{font-weight:400;font-size:clamp(40px,7.5vw,82px);line-height:.98;letter-spacing:-.02em}
+  .hero .intro{margin-top:8vh;max-width:30ch;font-weight:400;font-size:clamp(20px,2.4vw,30px);line-height:1.32;letter-spacing:-.01em}
+  .hero .intro .t{color:var(--muted)}
+
+  /* ---------- list ---------- */
+  .seclabel{font-size:12px;letter-spacing:var(--ls);text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .badge{display:inline-block;vertical-align:middle;margin-left:14px;font-size:10px;font-weight:500;letter-spacing:var(--ls);
+    text-transform:uppercase;color:var(--bg);background:var(--fg);border-radius:999px;padding:5px 10px;transform:translateY(-4px)}
+  .stage{padding-bottom:8vh}
+  .grid{display:block;border-bottom:1px solid var(--hairline)}
+  .proj{appearance:none;background:none;border:none;border-top:1px solid var(--hairline);cursor:pointer;color:inherit;font:inherit;
+    width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:32px;
+    padding:clamp(18px,2.4vw,30px) 0;text-align:left;transition:padding-left var(--hover),color var(--hover)}
+  .proj:hover{padding-left:14px}
+  .proj .pname{font-weight:400;font-size:clamp(26px,4.4vw,46px);letter-spacing:-.02em;line-height:1.02}
+  .proj .pcat{font-size:clamp(11px,1.1vw,13px);letter-spacing:var(--ls);text-transform:uppercase;color:var(--muted);
+    text-align:right;max-width:46%;line-height:1.5;flex:0 0 auto}
+  .proj .pcat .t{opacity:.6}
+  @media (max-width:640px){.proj{flex-direction:column;gap:8px;align-items:flex-start}.proj .pcat{text-align:left;max-width:100%}}
+
+  /* ---------- detail (slide-left) ---------- */
+  .stage.open{display:grid;grid-template-columns:230px 1fr;gap:var(--pad);align-items:start;border-bottom:none}
+  .stage.open .grid{display:flex;flex-direction:column;gap:0;position:sticky;top:30px;border-bottom:none}
+  .stage.open .proj{padding:9px 0;border-top:none}
+  .stage.open .proj:hover{padding-left:0}
+  .stage.open .proj .pcat{display:none}
+  .stage.open .proj .pname{font-size:15px;font-weight:400;letter-spacing:0}
+  .stage.open .badge{display:none}
+  .stage.open .proj:not(.is-active){opacity:.34}
+  .stage.open .proj:not(.is-active):hover{opacity:.65}
+  .stage.open .proj.is-active .pname{text-decoration:underline;text-underline-offset:4px}
+
+  .detail{display:none;opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease);position:relative}
+  .stage.open .detail{display:block}
+  .stage.open .detail.shown{opacity:1;transform:none}
+  .detail .close{position:absolute;top:0;right:0;width:38px;height:38px;border:1px solid var(--hairline);background:none;
+    border-radius:50%;cursor:pointer;color:var(--muted);font-size:15px;display:flex;align-items:center;justify-content:center;transition:var(--hover)}
+  .detail .close:hover{color:var(--fg);border-color:var(--fg)}
+  .detail .kicker{font-size:12px;letter-spacing:var(--ls);text-transform:uppercase;color:var(--muted)}
+  .detail h3{font-weight:400;font-size:clamp(34px,5.5vw,64px);letter-spacing:-.02em;line-height:.98;margin:14px 0 14px}
+  .detail .tagline{font-weight:400;font-size:clamp(19px,2vw,25px);line-height:1.34;color:#3a382f;margin-bottom:30px;max-width:48ch}
+  .detail .body p{max-width:62ch;margin-bottom:15px;color:#34322a;font-size:16px;line-height:1.65;font-weight:400}
+  .detail .meta{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 6px}
+  .detail .pill{font-size:11px;text-transform:uppercase;letter-spacing:var(--ls);border:1px solid var(--hairline);border-radius:999px;padding:7px 13px;color:var(--muted)}
+  .detail .gallery{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+  .detail .gallery img{width:88px;height:88px;object-fit:cover;display:block;background:#e6e4da;cursor:zoom-in;transition:opacity var(--hover)}
+  .detail .gallery img:hover{opacity:.8}
+  .detail .links{margin-top:30px;display:flex;gap:26px;flex-wrap:wrap}
+  .detail .links a{font-size:13px;letter-spacing:var(--ls);text-transform:uppercase;border-bottom:1px solid var(--fg);padding-bottom:3px;transition:opacity var(--hover)}
+  .detail .links a:hover{opacity:.5}
+  .detail .filmlist{margin-top:8px;border-top:1px solid var(--hairline)}
+  .detail .filmlist .row{display:flex;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid var(--hairline)}
+  .detail .filmlist .r-p{font-weight:500;font-size:16px}
+  .detail .filmlist .r-org{color:var(--muted);font-size:13px}
+  .detail .filmlist .r-yr{color:var(--muted);font-size:12px;white-space:nowrap;letter-spacing:.04em;text-transform:uppercase}
+  @media (max-width:780px){
+    .stage.open{grid-template-columns:1fr}
+    .stage.open .grid{position:static;flex-direction:row;overflow-x:auto;gap:18px;padding-bottom:8px}
+    .stage.open .proj{flex:0 0 auto}
+  }
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--hairline);margin-top:6vh}
+  footer .fwrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;
+    padding:30px var(--pad) 60px;max-width:1180px;margin:0 auto;
+    font-size:12px;letter-spacing:var(--ls);text-transform:uppercase;color:var(--muted)}
+  footer a{transition:color var(--hover)}
+  footer a:hover{color:var(--fg)}
+  footer .links a{margin-left:22px}
+
+  /* ---------- lightbox ---------- */
+  .lightbox{position:fixed;inset:0;background:rgba(246,245,238,.97);display:none;align-items:center;justify-content:center;
+    z-index:100;opacity:0;transition:opacity var(--hover);cursor:zoom-out;padding:6vh 6vw}
+  .lightbox.show{display:flex;opacity:1}
+  .lightbox img{max-width:100%;max-height:88vh;object-fit:contain;box-shadow:0 30px 80px -30px rgba(0,0,0,.4)}
+  .lightbox .lclose{position:absolute;top:24px;right:30px;font-size:12px;letter-spacing:var(--ls);text-transform:uppercase;background:none;border:none;cursor:pointer;color:var(--fg)}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+  <main class="wrap" id="top">
+    <section class="hero">
+      <h1>Anna Jay ~<br>Group Product<br>Manager.</h1>
+      <p class="intro">By day, shaping the operating system for summer camp, at Campminder. The rest of the time <span class="t">~ vibe coding,</span> City Notes <span class="t">~ designing and manufacturing,</span> Otic Acoustic Art <span class="t">~ moving units with</span> DriveSlide <span class="t">~ reminiscing and missing,</span> MacGuffin Kitchen <span class="t">~</span></p>
+    </section>
+
+    <div class="seclabel">Current and Past Work</div>
+    <div class="stage" id="stage">
+      <div class="grid" id="grid"><!-- rows injected --></div>
+      <section class="detail" id="detail" aria-live="polite"></section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="fwrap">
+      <span>Anna Jay — Boulder, Colorado</span>
+      <span class="links">
+        <a href="https://www.linkedin.com/in/anna-jay-023358a7/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://city-notes.vercel.app/" target="_blank" rel="noopener">City Notes</a>
+        <a href="https://otic.studio" target="_blank" rel="noopener">Otic</a>
+      </span>
+    </div>
+  </footer>
+
+  <div class="lightbox" id="lightbox"><button class="lclose" aria-label="Close">Close ✕</button><img alt=""></div>
+
+<script>
+const TILES = [
+  { id:"city", title:"City Notes", cat:["Side Project, Next.js","Live on Vercel"],
+    kicker:"Side Project · Live", dtitle:"City Notes",
+    tagline:"Read a city before you visit",
+    body:["Type a city or spin the globe to surface the authors who lived there, verbatim Reddit voices, and a few strange facts. Internet voices are lifted word-for-word from real posts; a verification gate blocks paraphrase, so the section ships empty before it ships invented."],
+    pills:["Next.js","Vercel","Verbatim Gate","Graphic Design"],
+    gallery:["public/images/city-home.jpg","public/images/city-vancouver.jpg","public/images/city-lisbon.jpg","public/images/city-buenosaires.jpg"],
+    links:[{t:"Visit City Notes",u:"https://city-notes.vercel.app/"},{t:"Lisbon zine",u:"https://city-notes.vercel.app/c/lisbon-portugal/zine"},{t:"Inspired by Risographs",u:"https://www.sweetmalarkey.com/riso-printing"}] },
+
+  { id:"otic", title:"Otic Acoustic Art", badge:"Soon to launch", cat:["Acoustic Art","Studio"],
+    kicker:"Studio · Soon to Launch", dtitle:"Otic Acoustic Art",
+    tagline:"Wall art that does acoustic work",
+    body:["Each piece is cut from PET felt into 100-plus baffles, layered until the ribs absorb sound the way a panel should while reading as art. The pattern is driven by data you choose, so a scene, a song, or a metric becomes the shape on your wall."],
+    pills:["PET Felt","CNC Cut","Data Driven","Acoustic Panel"],
+    gallery:["public/images/otic-cover.jpg","public/images/otic-closeup.jpg","public/images/otic-dogs.jpg","public/images/otic-hansolo.jpg","public/images/otic-water.jpg"],
+    links:[{t:"otic.studio",u:"https://otic.studio"}] },
+
+  { id:"drive", title:"DriveSlide", cat:["Product Design","Founder"],
+    kicker:"Founder · 2020–Present", dtitle:"DriveSlide",
+    tagline:"A home for your gear, on the go",
+    body:["A patented, ultra-thin accessory that slides onto the back of your laptop screen and holds cables and an SSD in a footprint the size of a poker hand. I ran it end to end: ideation, Kickstarter, a granted patent, mass production, and sales on Amazon today."],
+    pills:["Patented Hardware","Kickstarter","Mass Production","On Amazon"],
+    gallery:["public/images/drive-cover.jpg","public/images/drive-armsraised.jpg","public/images/drive-porch.jpg","public/images/drive-cards.jpg","public/images/drive-sliding.jpg"],
+    links:[{t:"Amazon",u:"https://www.amazon.com/DriveSlide-Aesthetic-Portable-Workspace-Declutter/dp/B0FRDZHBY7"},{t:"DriveSlide Website",u:"https://www.driveslideofficial.com/"},{t:"Kickstarter",u:"https://www.kickstarter.com/projects/driveslide/driveslide-a-secure-home-for-your-laptop-accessories"}] },
+
+  { id:"mac", title:"MacGuffin Kitchen", cat:["Craft Hot Sauce","Co-Founder"],
+    kicker:"Co-Founder · 2021–2024", dtitle:"MacGuffin Kitchen",
+    tagline:"Small-batch hot sauce, built wholesale",
+    body:["Co-founded a craft hot sauce company in Boulder and made everything in house — the flagship sauce, The Pilot, in squeeze bottles and gallon jugs. It ran from 2021 to 2024, on the menu at Skratch Cafe, Campfire, AJ's BBQ, and Au Feu Brasserie, until we closed the doors."],
+    gallery:["public/images/mac-campfire.jpg","public/images/photo-8628.jpg","public/images/photo-6483.jpg","public/images/photo-jug.jpg"],
+    pills:["Co-Founder","Small Batch","Wholesale","Craft Hot Sauce"], links:[] },
+
+  { id:"cm", title:"Campminder", cat:["Product Management","Group PM"],
+    kicker:"Group Product Manager · 2021–Present", dtitle:"Campminder",
+    tagline:"The leading software for summer camps",
+    body:["Campminder is the platform 1,700+ camps run on. As Group Product Manager I oversee the B2B2C side of the business, serving parents and seasonal staff through the Campanion mobile app."],
+    pills:["Product Leadership","1,700+ Camps","B2B2C","Campanion"],
+    gallery:["public/images/cmm-team.jpg"],
+    links:[{t:"campminder.com",u:"https://campminder.com"},{t:"Campanion app",u:"https://campanionapp.com/"}] },
+
+  { id:"cpf", title:"Colorado Product", cat:["Nonprofit","Board Member"],
+    kicker:"Board Member · 2024–2025", dtitle:"Colorado Product Foundation",
+    tagline:"Supporting the Colorado product community",
+    body:["As a board member of the Colorado Product Foundation, a 501(c)(3) serving the state's product-management community, I helped support its programming and growth from 2024 to 2025. The work backed both practitioners and the people who help power their teams."],
+    pills:["Board Member","Nonprofit","Community","Product Management"], links:[] },
+
+  { id:"film", title:"Film", cat:["Camera Crew","Digital Loader"],
+    kicker:"Camera Crew · 2014–2021", dtitle:"Film",
+    tagline:"I owned the footage on set",
+    body:["As digital loader I tracked card capacity through every take, swapped on hot cameras, then formatted, offloaded, and transcoded between setups. I handed editorial cut-ready media with logs cross-referenced to script-supervisor notes, and on House of Cards we field-tested each new RED body first."],
+    pills:["Digital Loader","RED Workflow","Footage Integrity","On-Set Logging"],
+    films:[
+      {p:"The Mandalorian / The Book of Boba Fett",o:"Disney Streaming",y:"2020–21"},
+      {p:"Yes Day / Lucifer S5",o:"Netflix",y:"2019–20"},
+      {p:"Penny Dreadful: City of Angels",o:"SHOWTIME",y:"2019"},
+      {p:"All American",o:"The CW",y:"2019"},
+      {p:"Interrogation S1",o:"CBS Studios",y:"2019"},
+      {p:"House of Cards (3 seasons)",o:"Netflix",y:"2014–18"},
+      {p:"On the Basis of Sex",o:"Focus Features",y:"2017"}
+    ],
+    links:[] }
+];
+
+const grid=document.getElementById("grid");
+const stage=document.getElementById("stage");
+const detail=document.getElementById("detail");
+let active=null;
+
+const ORDER=["cm","cpf","otic","city","mac","drive","film"];
+ORDER.forEach(id=>{
+  const t=TILES.find(x=>x.id===id);
+  const b=document.createElement("button");
+  b.className="proj";
+  b.dataset.id=t.id;
+  b.setAttribute("aria-expanded","false");
+  const cat=`${t.cat[0]} <span class="t">~</span> ${t.cat[1]}`;
+  const badge=t.badge?` <span class="badge">${t.badge}</span>`:"";
+  b.innerHTML=`<span class="pname">${t.title}${badge}</span><span class="pcat">${cat}</span>`;
+  b.addEventListener("click",e=>{e.stopPropagation();open(t.id);});
+  grid.appendChild(b);
+});
+
+function renderDetail(t){
+  const films=t.films?`<div class="filmlist">${t.films.map(f=>`<div class="row"><div><div class="r-p">${f.p}</div><div class="r-org">${f.o}</div></div><div class="r-yr">${f.y}</div></div>`).join("")}</div>`:"";
+  const links=t.links.length?`<div class="links">${t.links.map(l=>`<a href="${l.u}" target="_blank" rel="noopener">${l.t} ↗</a>`).join("")}</div>`:"";
+  const gallery=t.gallery?`<div class="gallery">${t.gallery.map(g=>`<img src="${g}" alt="" loading="lazy">`).join("")}</div>`:"";
+  detail.innerHTML=`<button class="close" aria-label="Close">✕</button>
+    <div class="kicker">${t.kicker}</div>
+    <h3>${t.dtitle}</h3>
+    <div class="tagline">${t.tagline}</div>
+    <div class="meta">${t.pills.map(p=>`<span class="pill">${p}</span>`).join("")}</div>
+    <div class="body">${t.body.map(p=>`<p>${p}</p>`).join("")}</div>
+    ${gallery}${films}${links}`;
+  detail.querySelector(".close").addEventListener("click",e=>{e.stopPropagation();close();});
+}
+function open(id){
+  const t=TILES.find(x=>x.id===id);active=id;
+  renderDetail(t);
+  stage.classList.add("open");
+  [...grid.children].forEach(c=>{const on=c.dataset.id===id;c.classList.toggle("is-active",on);c.setAttribute("aria-expanded",on?"true":"false");});
+  requestAnimationFrame(()=>requestAnimationFrame(()=>detail.classList.add("shown")));
+}
+function close(){active=null;detail.classList.remove("shown");stage.classList.remove("open");
+  [...grid.children].forEach(c=>{c.classList.remove("is-active");c.setAttribute("aria-expanded","false");});}
+
+/* lightbox */
+const lightbox=document.getElementById("lightbox");
+const lightboxImg=lightbox.querySelector("img");
+let lbList=[],lbIndex=0;
+function openLightbox(list,i){lbList=list;lbIndex=i;lightboxImg.src=list[i];lightbox.classList.add("show");}
+function closeLightbox(){lightbox.classList.remove("show");lightboxImg.src="";lbList=[];}
+function lbStep(d){if(lbList.length<2)return;lbIndex=(lbIndex+d+lbList.length)%lbList.length;lightboxImg.src=lbList[lbIndex];}
+lightbox.addEventListener("click",e=>{e.stopPropagation();closeLightbox();});
+detail.addEventListener("click",e=>{const img=e.target.closest(".gallery img");if(img){e.stopPropagation();
+  const imgs=[...detail.querySelectorAll(".gallery img")];openLightbox(imgs.map(x=>x.src),imgs.indexOf(img));}});
+
+document.addEventListener("click",e=>{if(lightbox.classList.contains("show"))return;if(active&&!stage.contains(e.target))close();});
+document.addEventListener("keydown",e=>{
+  if(lightbox.classList.contains("show")){
+    if(e.key==="Escape")closeLightbox();
+    else if(e.key==="ArrowRight"){e.preventDefault();lbStep(1);}
+    else if(e.key==="ArrowLeft"){e.preventDefault();lbStep(-1);}
+    return;
+  }
+  if(e.key==="Escape"&&active)close();
+});
+</script>
+</body>
+</html>

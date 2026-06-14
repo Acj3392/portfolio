@@ -1,0 +1,14 @@
+# Plans/notes — not part of the site
+docs/
+
+# Unused font (page loads Inter from Google Fonts)
+public/fonts/
+
+# Images not referenced by index.html
+public/images/city-riso.jpg
+public/images/cmm-album.jpg
+public/images/cmm-campanion.jpg
+public/images/cmm-cover.jpg
+public/images/cmm-person.jpg
+public/images/otic-blender.jpg
+public/images/photo-cheers.jpg
